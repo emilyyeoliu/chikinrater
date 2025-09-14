@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only server/index.ts",
-    "build": "tsc",
+    "build": "npm run prisma:generate && npm run build:web && tsc",
     "start": "node dist/server/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
@@ -13,7 +13,7 @@
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
     "build:web": "cd web && npm run build",
-    "build:full": "npm run prisma:generate && npm run build:web && npm run build",
+    "build:full": "npm run build",
     "dev:web": "cd web && npm run dev"
   },
   "prisma": {
