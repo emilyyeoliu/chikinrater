@@ -89,7 +89,8 @@ export default function Join({ setUser, setEvent }: JoinProps) {
 
             <Button 
               type="submit" 
-              className="w-full bg-gradient-to-r from-chicken-600 to-chicken-500 hover:from-chicken-700 hover:to-chicken-600 text-white font-bold py-3 shadow-lg hover:shadow-xl transition-all duration-300 border-0" 
+              variant="default"
+              className="w-full font-bold py-3 shadow-lg hover:shadow-xl transition-all duration-300"
               disabled={loading || !eventCode.trim() || !username.trim()}
             >
               {loading ? 'Joining the Party...' : 'Start Tasting! 🍗✨'}
