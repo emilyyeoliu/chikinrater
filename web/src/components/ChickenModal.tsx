@@ -15,12 +15,12 @@ interface ChickenModalProps {
 
 export default function ChickenModal({ boxNumber, places, currentGuess, onGuess, onClose, onRankSelect }: ChickenModalProps) {
   const [guess, setGuess] = useState(currentGuess || '');
-  const [step, setStep] = useState<'guess' | 'rank'>(currentGuess ? 'rank' : 'guess');
+  const [step] = useState<'guess' | 'rank'>('guess');
 
   const handleSelectGuess = (value: string) => {
     setGuess(value);
     onGuess(value);
-    setStep('rank');
+    // Do not transition to ranking step; close will be handled by parent after guess
   };
 
   const handleRankSubmit = (selectedRank: number) => {

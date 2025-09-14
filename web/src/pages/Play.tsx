@@ -274,16 +274,6 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                     <TopThree onSubmit={handleRankingSubmit} />
                   </div>
                 )}
-                {hasCompletedGuesses && hasCompletedRankings && (
-                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center">
-                    Rankings submitted! You can still view live results below.
-                  </div>
-                )}
-
-                <div className="text-sm text-crust-600 text-center max-w-2xl mx-auto bg-white/60 p-4 rounded-lg border border-golden-200">
-                  <p className="font-medium mb-2">💡 First guess the restaurant, then rank your top 3!</p>
-                  <p className="text-xs">🟢 Complete | 🟡 Guessed only | ⚫ Not started</p>
-                </div>
               </TabsContent>
 
               <TabsContent value="results">
