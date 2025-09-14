@@ -17,11 +17,10 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
   const [guess, setGuess] = useState(currentGuess || '');
   const [step, setStep] = useState<'guess' | 'rank'>(currentGuess ? 'rank' : 'guess');
 
-  const handleGuessSubmit = () => {
-    if (guess) {
-      onGuess(guess);
-      setStep('rank');
-    }
+  const handleSelectGuess = (value: string) => {
+    setGuess(value);
+    onGuess(value);
+    setStep('rank');
   };
 
   const handleRankSubmit = (selectedRank: number) => {
@@ -53,7 +52,7 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
             <div className="space-y-4">
               <div>
                 <label className="block mb-2 text-sm font-medium">Guess where this chicken is from:</label>
-                <Select value={guess} onValueChange={setGuess}>
+                <Select value={guess} onValueChange={handleSelectGuess}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a restaurant..." />
                   </SelectTrigger>
@@ -66,14 +65,6 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
                   </SelectContent>
                 </Select>
               </div>
-              
-              <Button 
-                onClick={handleGuessSubmit} 
-                className="w-full"
-                disabled={!guess}
-              >
-                Submit Guess & Continue to Ranking
-              </Button>
             </div>
           ) : (
             <div className="space-y-4">
