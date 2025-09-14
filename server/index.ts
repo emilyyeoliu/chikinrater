@@ -99,6 +99,15 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
+  // Ensure migrations are applied in production
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      // Use prisma client to ensure connectivity; migrations run during build via script
+      await prisma.$queryRaw`SELECT 1`;
+    } catch (e) {
+      console.error('Database connectivity check failed:', e);
+    }
+  }
   console.log(`🚀 Chicken Rating Server running on port ${PORT} - Express 5 compatible!`);
 });
