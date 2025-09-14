@@ -100,5 +100,5 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Chicken Rating Server running on port ${PORT} - Express 5 compatible!`);
 });
