@@ -73,7 +73,7 @@ export default function Join({ setUser, setEvent }: JoinProps) {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 maxLength={30}
-                pattern="[a-zA-Z0-9_-]*"
+                pattern="[A-Za-z0-9_\\-]+"
                 title="Letters, numbers, underscores, and dashes only"
               />
             </div>
