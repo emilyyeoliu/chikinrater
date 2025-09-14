@@ -24,7 +24,8 @@ export const AdminStatusSchema = z.object({
 export const AdminMapSchema = z.object({
   code: z.string(),
   // Use explicit key and value schemas for compatibility across zod versions
-  mappings: z.record(z.string(), z.string()),
+  // Use `any` cast to avoid TS signature mismatch across Zod versions during build environments
+  mappings: (z as any).record ? (z as any).record(z.string(), z.string()) : (z as any).record(z.string()),
 });
 
 export const AdminSeedSchema = z.object({
