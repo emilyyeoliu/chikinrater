@@ -54,12 +54,12 @@ router.post('/register', async (req, res) => {
       } 
     });
     
-    // Set cookie
+    // Set cookie (signed only if a secret is configured)
     res.cookie('token', token, { 
       httpOnly: true, 
       sameSite: 'lax', 
       secure: process.env.NODE_ENV === 'production',
-      signed: true,
+      signed: Boolean(process.env.SESSION_SECRET),
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
     
