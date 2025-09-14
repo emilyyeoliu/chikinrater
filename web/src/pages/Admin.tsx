@@ -181,13 +181,13 @@ export default function Admin() {
               type="password"
               value={adminSecret}
               onChange={(e) => setAdminSecret(e.target.value)}
-              placeholder="Enter admin password (chikin123)"
+              placeholder="Enter admin password"
               className="w-full px-4 py-2 border-2 border-golden-300 focus:border-chicken-500 focus:ring-chicken-500 rounded-lg mb-4 bg-white/80"
               required
             />
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-chicken-600 to-chicken-500 hover:from-chicken-700 hover:to-chicken-600 text-white font-semibold py-2 rounded-lg shadow-lg transition-all duration-300"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg shadow-lg transition-all duration-300"
             >
               Login
             </button>
