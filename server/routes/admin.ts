@@ -85,33 +85,9 @@ router.post('/seed', async (req, res) => {
   }
 });
 
-// Update event status
-router.post('/status', async (req, res) => {
-  try {
-    const { code, status } = AdminStatusSchema.parse(req.body);
-    
-    const event = await prisma.event.update({ 
-      where: { code }, 
-      data: { status } 
-    });
-    
-    // Get io instance from app
-    const io = req.app.get('io');
-    
-    // Emit status change
-    io.to(room(event.id)).emit('event:status', { status });
-    
-    // Emit updated results
-    await emitResults(event.id);
-    
-    res.json({ ok: true });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: error.issues[0].message });
-    }
-    console.error('Status update error:', error);
-    res.status(500).json({ error: 'Failed to update status' });
-  }
+// Status endpoint removed (users can guess/rank anytime); keep 410 for clients
+router.post('/status', (_req, res) => {
+  return res.status(410).json({ error: 'Status control removed' });
 });
 
 // Set box mappings

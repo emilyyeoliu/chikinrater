@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminAPI, gameAPI } from '../api';
-import type { Event } from '../api';
+// Event type no longer used here
 import { LogoIcon } from '../components/Logo';
 
 export default function Admin() {
@@ -108,21 +108,7 @@ export default function Admin() {
     }
   };
 
-  const handleUpdateStatus = async (status: Event['status']) => {
-    if (!selectedEvent) return;
-    
-    try {
-      setLoading(true);
-      await adminAPI.updateStatus(selectedEvent.code, status);
-      alert(`Status updated to ${status}`);
-      loadEvent(selectedEvent.code);
-    } catch (error) {
-      console.error('Failed to update status:', error);
-      alert('Failed to update status');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Status controls removed
 
   const handleSaveMappings = async () => {
     if (!selectedEvent) return;
@@ -296,43 +282,7 @@ export default function Admin() {
               <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm">{errorMessage}</div>
             )}
 
-            {/* Status Control */}
-            <div className="mb-6">
-              <h3 className="font-semibold mb-2 text-crust-800">Event Status</h3>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleUpdateStatus('GUESSING')}
-                  disabled={loading || selectedEvent.status === 'GUESSING'}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
-                >
-                  Start Guessing
-                </button>
-                <button
-                  onClick={() => handleUpdateStatus('RANKING')}
-                  disabled={loading || selectedEvent.status === 'RANKING'}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50"
-                >
-                  Start Ranking
-                </button>
-                <button
-                  onClick={() => handleUpdateStatus('REVEALED')}
-                  disabled={loading || selectedEvent.status === 'REVEALED'}
-                  className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50"
-                >
-                  Reveal Results
-                </button>
-                <button
-                  onClick={() => handleUpdateStatus('CLOSED')}
-                  disabled={loading || selectedEvent.status === 'CLOSED'}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50"
-                >
-                  Close Event
-                </button>
-              </div>
-              <p className="text-sm text-gray-600 mt-2">
-                Current status: <span className="font-semibold">{selectedEvent.status}</span>
-              </p>
-            </div>
+            {/* Status controls removed: users can guess and rank anytime */}
 
             {/* Box Mappings */}
             <div>

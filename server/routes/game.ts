@@ -109,24 +109,11 @@ router.post('/rank', async (req, res) => {
       return res.status(401).json({ error: 'Not authenticated' });
     }
     
-    if (user.event.status !== 'RANKING') {
-      return res.status(400).json({ error: 'Not in ranking phase' });
-    }
-    
     const { first, second, third } = RankSchema.parse(req.body);
     
     // Check all three are unique
     if (new Set([first, second, third]).size !== 3) {
       return res.status(400).json({ error: 'Must select 3 different boxes' });
-    }
-    
-    // Check user has completed all guesses
-    const userGuessCount = await prisma.guess.count({
-      where: { userId: user.id }
-    });
-    
-    if (userGuessCount < 6) {
-      return res.status(400).json({ error: 'Must complete all guesses before ranking' });
     }
     
     // Get boxes
