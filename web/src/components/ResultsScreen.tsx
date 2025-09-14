@@ -1,11 +1,11 @@
-import React from 'react';
+// React import not required with automatic JSX runtime
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 
 interface ResultsScreenProps {
-  username: string;
+  username?: string;
   userVotes: Record<number, { guess: string; ranking?: number }>;
   onBackToVoting: () => void;
 }
@@ -31,7 +31,7 @@ const mockResults = {
   }
 };
 
-export function ResultsScreen({ username, userVotes, onBackToVoting }: ResultsScreenProps) {
+export function ResultsScreen({ userVotes, onBackToVoting }: ResultsScreenProps) {
   const getTopGuess = (boxNumber: number) => {
     const guesses = mockResults.guesses[boxNumber as keyof typeof mockResults.guesses];
     return Object.entries(guesses).reduce((a, b) => guesses[a[0] as keyof typeof guesses] > guesses[b[0] as keyof typeof guesses] ? a : b);

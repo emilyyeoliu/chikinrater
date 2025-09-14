@@ -4,7 +4,7 @@ import { authAPI } from '../api';
 import type { User, Event } from '../api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import Logo from '../components/Logo';
 
 interface JoinProps {

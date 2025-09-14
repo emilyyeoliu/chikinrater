@@ -86,7 +86,8 @@ io.on('connection', (socket) => {
 // Serve frontend build in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(process.cwd(), 'web', 'dist')));
-  app.get('*', (_, res) => {
+  // Express 5 uses path-to-regexp v6 which doesn't support '*' path. Use a RegExp instead.
+  app.get(/.*/, (_, res) => {
     res.sendFile(path.join(process.cwd(), 'web', 'dist', 'index.html'));
   });
 }

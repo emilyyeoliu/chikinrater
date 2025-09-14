@@ -110,6 +110,10 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
   const hasCompletedGuesses = Object.keys(userGuesses).length === 6;
   const hasCompletedRankings = Object.keys(userRankings).length === 3;
 
+  // Normalize status literals to avoid mismatched literal types during comparisons
+  const eventStatus: 'GUESSING' | 'RANKING' | 'REVEALED' | 'CLOSED' = event.status as any;
+  const isEventRevealed = event.status === 'REVEALED';
+
   // Optimistic overlay so the Taste Leaderboard reflects local selections immediately
   const displayResults = useMemo(() => {
     if (!results) return null;
@@ -189,7 +193,7 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
       <div className="flex justify-center min-h-[calc(100vh-80px)]">
         <div className="w-full max-w-5xl px-4 py-8">
           {/* Main Content */}
-          {event.status === 'GUESSING' && (
+          {eventStatus === 'GUESSING' && (
             <Tabs defaultValue="rating" className="w-full">
               <div className="text-center mb-8">
                 <div className="flex justify-center mb-4">
@@ -254,7 +258,7 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                       onClick={() => setSelectedBox(num)}
                       disabled={false}
                       rankIcon={userRankings[num] as 1 | 2 | 3 | undefined}
-                      revealed={revealed || event.status === 'REVEALED'}
+                      revealed={revealed || isEventRevealed}
                       revealedAnswer={
                         (revealed && (answers[num] ?? undefined)) ||
                         results?.boxes.find(b => b.number === num)?.revealedPlace ||
@@ -280,13 +284,13 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
 
               <TabsContent value="results">
                 {results && displayResults && (
-                  <Leaderboard results={displayResults} revealed={event.status === 'REVEALED'} />
+                  <Leaderboard results={displayResults} revealed={isEventRevealed} />
                 )}
               </TabsContent>
             </Tabs>
           )}
 
-          {event.status === 'RANKING' && (
+          {eventStatus === 'RANKING' && (
             <div>
               {!hasCompletedGuesses ? (
                 <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
@@ -307,7 +311,7 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
             </div>
           )}
 
-          {event.status === 'REVEALED' && (
+          {eventStatus === 'REVEALED' && (
             <div className="space-y-8">
               <div>
                 <h2 className="text-xl font-semibold mb-4">Results Revealed!</h2>

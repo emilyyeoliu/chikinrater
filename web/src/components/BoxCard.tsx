@@ -12,8 +12,8 @@ interface BoxCardProps {
   shaking?: boolean;
 }
 
-export default function BoxCard({ number, guess, distribution, onClick, disabled, rankIcon, revealed, revealedAnswer, shaking }: BoxCardProps) {
-  const totalGuesses = distribution ? Object.values(distribution).reduce((a, b) => a + b, 0) : 0;
+export default function BoxCard({ number, guess, distribution: _distribution, onClick, disabled, rankIcon, revealed, revealedAnswer, shaking }: BoxCardProps) {
+  // distribution is currently unused; keep prop for future live results
   
   const getBoxStatus = () => {
     if (!guess) return 'not-voted';
