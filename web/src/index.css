@@ -2,6 +2,23 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-gradient-to-br from-golden-50 to-chicken-50 text-crust-900 antialiased font-display;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-golden-100;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-chicken-400 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-chicken-500;
   }
 }

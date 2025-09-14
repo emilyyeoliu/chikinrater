@@ -10,6 +10,7 @@ import Leaderboard from '../components/Leaderboard';
 import UserAccuracyBoard from '../components/UserAccuracyBoard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { LogoIcon } from '../components/Logo';
 
 interface PlayProps {
   user: User;
@@ -104,8 +105,11 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading game...</div>
+      <div className="min-h-screen bg-gradient-to-br from-golden-50 to-chicken-50 flex items-center justify-center">
+        <div className="flex items-center space-x-3">
+          <LogoIcon size="lg" className="animate-bounce" />
+          <div className="text-xl text-crust-700 animate-pulse">Loading the chicken party...</div>
+        </div>
       </div>
     );
   }
@@ -115,22 +119,25 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
   const hasCompletedRankings = Object.keys(userRankings).length === 3;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-golden-50 to-chicken-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white/95 backdrop-blur-sm shadow-lg border-b-2 border-golden-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold">🍗 {event.name}</h1>
-              <p className="text-sm text-gray-600">
-                Status: <span className="font-semibold capitalize">{event.status.toLowerCase()}</span>
-              </p>
+            <div className="flex items-center space-x-4">
+              <LogoIcon size="md" />
+              <div>
+                <h1 className="text-2xl font-bold text-crust-900">{event.name}</h1>
+                <p className="text-sm text-crust-600">
+                  Status: <span className="font-semibold capitalize px-2 py-1 rounded-full bg-chicken-100 text-chicken-800">{event.status.toLowerCase()}</span>
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">Welcome, {user.username}!</span>
+              <span className="text-sm text-crust-700 font-medium">Welcome, {user.username}! 🎉</span>
               <button
                 onClick={handleLogout}
-                className="text-sm text-red-600 hover:text-red-700 underline"
+                className="text-sm text-red-600 hover:text-red-700 underline font-medium transition-colors"
               >
                 Leave Event
               </button>
@@ -145,16 +152,18 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
           {event.status === 'GUESSING' && (
             <Tabs defaultValue="rating" className="w-full">
               <div className="text-center mb-8">
-                <h2 className="text-4xl font-semibold mb-2">🍗 Chikin Rater</h2>
-                <p className="text-lg text-gray-600 mb-6">Hey {user.username}! Click each box to taste and rate</p>
+                <div className="flex justify-center mb-4">
+                  <LogoIcon size="xl" />
+                </div>
+                <p className="text-lg text-crust-700 mb-6 font-medium">Hey {user.username}! Click each box to taste and rate! 🍗✨</p>
 
                 <div className="flex items-center justify-center gap-4">
-                  <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm">
-                    Completed: {userProgress?.guessesCompleted || 0}/6
+                  <span className="px-4 py-2 rounded-full bg-gradient-to-r from-golden-200 to-chicken-200 text-crust-800 text-sm font-semibold shadow-sm">
+                    Completed: {userProgress?.guessesCompleted || 0}/6 🏆
                   </span>
                   <Button
                     variant="outline"
-                    className="text-sm"
+                    className="text-sm border-chicken-400 text-chicken-700 hover:bg-chicken-50 hover:border-chicken-500 font-medium"
                     onClick={() => (document.querySelector('[data-state="active"][data-value="results"]') ? null : null)}
                   >
                     View Live Results 📊
@@ -162,9 +171,9 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                 </div>
 
                 <div className="mt-4 flex justify-center">
-                  <TabsList className="grid w-full max-w-xs grid-cols-2">
-                    <TabsTrigger value="rating">Rating</TabsTrigger>
-                    <TabsTrigger value="results">Live Results</TabsTrigger>
+                  <TabsList className="grid w-full max-w-xs grid-cols-2 bg-white/80 border border-golden-300">
+                    <TabsTrigger value="rating" className="data-[state=active]:bg-chicken-500 data-[state=active]:text-white">Rating</TabsTrigger>
+                    <TabsTrigger value="results" className="data-[state=active]:bg-chicken-500 data-[state=active]:text-white">Live Results</TabsTrigger>
                   </TabsList>
                 </div>
               </div>
@@ -185,14 +194,15 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                 </div>
 
                 {hasCompletedGuesses && (
-                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg max-w-2xl mx-auto text-center">
-                    Great! You've completed all your guesses. Wait for the ranking phase to begin.
+                  <div className="bg-gradient-to-r from-green-50 to-golden-50 border-2 border-green-300 text-green-800 px-6 py-4 rounded-lg max-w-2xl mx-auto text-center shadow-md">
+                    <div className="font-semibold text-lg">🎉 Fantastic!</div>
+                    <div>You've completed all your guesses. Wait for the ranking phase to begin.</div>
                   </div>
                 )}
 
-                <div className="text-sm text-gray-500 text-center max-w-2xl mx-auto">
-                  <p>💡 First guess the restaurant, then rank your top 3!</p>
-                  <p>Green = Complete | Yellow = Guessed only | Gray = Not started</p>
+                <div className="text-sm text-crust-600 text-center max-w-2xl mx-auto bg-white/60 p-4 rounded-lg border border-golden-200">
+                  <p className="font-medium mb-2">💡 First guess the restaurant, then rank your top 3!</p>
+                  <p className="text-xs">🟢 Complete | 🟡 Guessed only | ⚫ Not started</p>
                 </div>
               </TabsContent>
 

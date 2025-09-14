@@ -5,6 +5,7 @@ import type { User, Event } from '../api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Logo from '../components/Logo';
 
 interface JoinProps {
   setUser: (user: User) => void;
@@ -36,18 +37,20 @@ export default function Join({ setUser, setEvent }: JoinProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl">🍗 Chikin Rater</CardTitle>
-          <CardDescription>
-            Welcome to the ultimate fried chicken taste test!
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-golden-50 to-chicken-50">
+      <Card className="w-full max-w-md shadow-xl border-2 border-golden-200 bg-white/90 backdrop-blur-sm">
+        <CardHeader className="text-center pb-6">
+          <div className="flex justify-center mb-4">
+            <Logo size="xl" className="justify-center" />
+          </div>
+          <CardDescription className="text-lg text-crust-700 font-medium">
+            Welcome to the ultimate fried chicken taste test party!
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="eventCode" className="block mb-2 text-sm font-medium">
+              <label htmlFor="eventCode" className="block mb-2 text-sm font-semibold text-crust-800">
                 Event Code
               </label>
               <Input
@@ -58,11 +61,12 @@ export default function Join({ setUser, setEvent }: JoinProps) {
                 onChange={(e) => setEventCode(e.target.value)}
                 required
                 autoFocus
+                className="border-golden-300 focus:border-chicken-500 focus:ring-chicken-500 bg-white/80"
               />
             </div>
 
             <div>
-              <label htmlFor="username" className="block mb-2 text-sm font-medium">
+              <label htmlFor="username" className="block mb-2 text-sm font-semibold text-crust-800">
                 Your Name
               </label>
               <Input
@@ -75,30 +79,35 @@ export default function Join({ setUser, setEvent }: JoinProps) {
                 maxLength={30}
                 pattern="[a-zA-Z0-9_-]*"
                 title="Letters, numbers, underscores, and dashes only"
+                className="border-golden-300 focus:border-chicken-500 focus:ring-chicken-500 bg-white/80"
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm font-medium">
                 {error}
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading || !eventCode.trim() || !username.trim()}>
-              {loading ? 'Joining...' : 'Start Tasting! 🍗'}
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-chicken-600 to-chicken-500 hover:from-chicken-700 hover:to-chicken-600 text-white font-bold py-3 shadow-lg hover:shadow-xl transition-all duration-300 border-0" 
+              disabled={loading || !eventCode.trim() || !username.trim()}
+            >
+              {loading ? 'Joining the Party...' : 'Start Tasting! 🍗✨'}
             </Button>
           </form>
           
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Rate 6 mystery chicken boxes and guess where they're from!
+            <p className="text-sm text-crust-600 bg-golden-100 px-4 py-2 rounded-lg border border-golden-200">
+              🥳 Rate 6 mystery chicken boxes and guess where they're from! 🥳
             </p>
           </div>
 
           <div className="mt-4 text-center">
             <a
               href="/admin"
-              className="text-sm text-gray-500 hover:text-gray-700 underline"
+              className="text-sm text-crust-500 hover:text-chicken-600 underline font-medium transition-colors"
             >
               Admin Panel
             </a>

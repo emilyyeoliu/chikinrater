@@ -28,15 +28,15 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-golden-50 to-chicken-50 flex items-center justify-center">
+        <div className="text-xl text-crust-700 animate-pulse">Loading your chicken party...</div>
       </div>
     );
   }
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-golden-50 to-chicken-50">
         <Routes>
           <Route 
             path="/join" 
