@@ -7,9 +7,12 @@ interface BoxCardProps {
   onClick: () => void;
   disabled: boolean;
   rankIcon?: 1 | 2 | 3;
+  revealed?: boolean;
+  revealedAnswer?: string;
+  shaking?: boolean;
 }
 
-export default function BoxCard({ number, guess, distribution, onClick, disabled, rankIcon }: BoxCardProps) {
+export default function BoxCard({ number, guess, distribution, onClick, disabled, rankIcon, revealed, revealedAnswer, shaking }: BoxCardProps) {
   const totalGuesses = distribution ? Object.values(distribution).reduce((a, b) => a + b, 0) : 0;
   
   const getBoxStatus = () => {
@@ -36,12 +39,19 @@ export default function BoxCard({ number, guess, distribution, onClick, disabled
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:shadow-lg'}
         `}
       >
-        <div className="text-2xl mb-2">📦</div>
+        <div className={`text-2xl mb-2 ${shaking && !revealed ? 'animate-[wiggle_1s_ease-in-out_1]' : ''}`}>
+          {revealed ? '🐔' : '📦'}
+        </div>
         <div className="text-xl font-bold mb-2">Box {number}</div>
         
         {guess && (
-          <div className="text-sm text-gray-600 mb-2">
-            {guess}
+          <div className="text-sm text-gray-600 mb-1">
+            Guess: {guess}
+          </div>
+        )}
+        {revealed && revealedAnswer && (
+          <div className={`text-sm font-semibold ${guess === revealedAnswer ? 'text-green-600' : 'text-red-600'}`}>
+            Answer: {revealedAnswer}
           </div>
         )}
       </button>

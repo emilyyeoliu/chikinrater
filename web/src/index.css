@@ -2,7 +2,8 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-golden-50 to-chicken-50 text-crust-900 antialiased font-display;
+    /* Fallback to standard Tailwind colors to avoid unknown utility errors */
+    @apply bg-gray-50 text-gray-900 antialiased;
   }
   
   /* Custom scrollbar */
@@ -11,14 +12,22 @@
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-golden-100;
+    @apply bg-gray-200;
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-chicken-400 rounded-full;
+    @apply bg-gray-400 rounded-full;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-chicken-500;
+    @apply bg-gray-500;
+  }
+}
+
+@layer utilities {
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg) }
+    25% { transform: rotate(6deg) }
+    75% { transform: rotate(-6deg) }
   }
 }

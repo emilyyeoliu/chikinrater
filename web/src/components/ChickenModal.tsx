@@ -15,8 +15,7 @@ interface ChickenModalProps {
 
 export default function ChickenModal({ boxNumber, places, currentGuess, onGuess, onClose, onRankSelect }: ChickenModalProps) {
   const [guess, setGuess] = useState(currentGuess || '');
-  const [step, setStep] = useState<'guess' | 'rank' | 'summary'>(currentGuess ? 'rank' : 'guess');
-  const [chosenRank, setChosenRank] = useState<number | null>(null);
+  const [step, setStep] = useState<'guess' | 'rank'>(currentGuess ? 'rank' : 'guess');
 
   const handleGuessSubmit = () => {
     if (guess) {
@@ -26,11 +25,10 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
   };
 
   const handleRankSubmit = (selectedRank: number) => {
-    setChosenRank(selectedRank);
     if (onRankSelect) {
       onRankSelect(boxNumber, selectedRank);
     }
-    setStep('summary');
+    onClose();
   };
 
   const handleSkipRanking = () => {
@@ -77,7 +75,7 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
                 Submit Guess & Continue to Ranking
               </Button>
             </div>
-          ) : step === 'rank' ? (
+          ) : (
             <div className="space-y-4">
               <div className="text-center">
                 <Badge variant="outline" className="mb-4">
@@ -119,19 +117,6 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
                   Skip ranking for now
                 </Button>
               </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="text-center space-y-2">
-                <h4 className="text-lg font-semibold">Summary</h4>
-                <p className="text-sm">Box {boxNumber}</p>
-                <p className="text-sm">Guess: <span className="font-medium">{guess}</span></p>
-                {chosenRank && (
-                  <p className="text-sm">Ranking: <span className="font-medium">{chosenRank === 1 ? '1st' : chosenRank === 2 ? '2nd' : '3rd'}</span></p>
-                )}
-              </div>
-
-              <Button className="w-full" onClick={onClose}>Done</Button>
             </div>
           )}
         </CardContent>
