@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only server/index.ts",
-    "build": "npm run prisma:generate && npm run build:web && tsc",
+    "build": "npm run prisma:generate && cd web && npm ci && npm run build && cd .. && tsc",
     "start": "node dist/server/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
