@@ -20,7 +20,8 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
   const handleSelectGuess = (value: string) => {
     setGuess(value);
     onGuess(value);
-    // Do not transition to ranking step; close will be handled by parent after guess
+    // Close immediately after selecting a guess
+    onClose();
   };
 
   const handleRankSubmit = (selectedRank: number) => {
