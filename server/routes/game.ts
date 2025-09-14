@@ -15,9 +15,7 @@ router.post('/guess', async (req, res) => {
       return res.status(401).json({ error: 'Not authenticated' });
     }
     
-    if (user.event.status !== 'GUESSING') {
-      return res.status(400).json({ error: 'Not in guessing phase' });
-    }
+    // Phase restrictions removed: users can guess at any time
     
     const { boxNumber, placeName } = GuessSchema.parse(req.body);
     

@@ -110,7 +110,7 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
   const hasCompletedGuesses = Object.keys(userGuesses).length === 6;
   const hasCompletedRankings = Object.keys(userRankings).length === 3;
 
-  // Normalize status literals to avoid mismatched literal types during comparisons
+  // Normalize status literals; phases are de-emphasized but we still react to REVEALED for extras
   const eventStatus: 'GUESSING' | 'RANKING' | 'REVEALED' | 'CLOSED' = event.status as any;
   const isEventRevealed = event.status === 'REVEALED';
 
@@ -192,14 +192,13 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
 
       <div className="flex justify-center min-h-[calc(100vh-80px)]">
         <div className="w-full max-w-5xl px-4 py-8">
-          {/* Main Content */}
-          {eventStatus === 'GUESSING' && (
-            <Tabs defaultValue="rating" className="w-full">
+          {/* Main Content: phases removed, always show play/results */}
+          <Tabs defaultValue="rating" className="w-full">
               <div className="text-center mb-8">
                 <div className="flex justify-center mb-4">
                   <LogoIcon size="xl" />
                 </div>
-                <p className="text-lg text-crust-700 mb-6 font-medium">Hey {user.username}! Click each box to taste and rate! 🍗✨</p>
+                <p className="text-lg text-crust-700 mb-6 font-medium">Hey {user.username}! Click each box to taste, guess, and rank! 🍗✨</p>
 
                 <div className="flex items-center justify-center gap-4">
                   <span className="px-4 py-2 rounded-full bg-gradient-to-r from-golden-200 to-chicken-200 text-crust-800 text-sm font-semibold shadow-sm">
@@ -240,8 +239,8 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
 
                 <div className="mt-4 flex justify-center">
                   <TabsList className="grid w-full max-w-xs grid-cols-2 bg-white/80 border border-golden-300">
-                    <TabsTrigger value="rating" className="data-[state=active]:bg-chicken-500 data-[state=active]:text-red-600">Rating</TabsTrigger>
-                    <TabsTrigger value="results" className="data-[state=active]:bg-chicken-500 data-[state=active]:text-red-600">Live Results</TabsTrigger>
+                    <TabsTrigger value="rating" className="data-[state=active]:bg-chicken-500 data-[state=active]:text-red-600">Play</TabsTrigger>
+                    <TabsTrigger value="results" className="data-[state=active]:bg-chicken-500 data-[state=active]:text-red-600">Results</TabsTrigger>
                   </TabsList>
                 </div>
               </div>
@@ -269,10 +268,15 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                   ))}
                 </div>
 
-                {hasCompletedGuesses && (
-                  <div className="bg-gradient-to-r from-green-50 to-golden-50 border-2 border-green-300 text-green-800 px-6 py-4 rounded-lg max-w-2xl mx-auto text-center shadow-md">
-                    <div className="font-semibold text-lg">🎉 Fantastic!</div>
-                    <div>You've completed all your guesses. Wait for the ranking phase to begin.</div>
+                {hasCompletedGuesses && !hasCompletedRankings && (
+                  <div className="max-w-2xl mx-auto">
+                    <h2 className="text-xl font-semibold mb-4 text-center">Rank your top 3 boxes by taste</h2>
+                    <TopThree onSubmit={handleRankingSubmit} />
+                  </div>
+                )}
+                {hasCompletedGuesses && hasCompletedRankings && (
+                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center">
+                    Rankings submitted! You can still view live results below.
                   </div>
                 )}
 
@@ -288,31 +292,25 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                 )}
               </TabsContent>
             </Tabs>
-          )}
 
-          {eventStatus === 'RANKING' && (
-            <div>
-              {!hasCompletedGuesses ? (
-                <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
-                  You must complete all guesses before ranking. The guessing phase has ended.
-                </div>
-              ) : !hasCompletedRankings ? (
-                <div>
-                  <h2 className="text-xl font-semibold mb-4">
-                    Rank your top 3 boxes by taste
-                  </h2>
-                  <TopThree onSubmit={handleRankingSubmit} />
-                </div>
-              ) : (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center">
-                  Rankings submitted! Wait for the results to be revealed.
-                </div>
-              )}
-            </div>
-          )}
+          {/* Ranking is allowed during any phase: surface it here as well when revealed */}
 
           {eventStatus === 'REVEALED' && (
             <div className="space-y-8">
+              {!hasCompletedRankings && (
+                <div>
+                  {!hasCompletedGuesses ? (
+                    <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
+                      Please complete all your guesses to enable ranking.
+                    </div>
+                  ) : (
+                    <div>
+                      <h2 className="text-xl font-semibold mb-4">Rank your top 3 boxes by taste</h2>
+                      <TopThree onSubmit={handleRankingSubmit} />
+                    </div>
+                  )}
+                </div>
+              )}
               <div>
                 <h2 className="text-xl font-semibold mb-4">Results Revealed!</h2>
                 
