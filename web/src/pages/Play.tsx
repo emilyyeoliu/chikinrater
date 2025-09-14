@@ -4,10 +4,12 @@ import type { User, Event, ResultsPayload } from '../api';
 import { gameAPI, authAPI } from '../api';
 import socketManager from '../socket';
 import BoxCard from '../components/BoxCard';
-import GuessModal from '../components/GuessModal';
+import ChickenModal from '../components/ChickenModal';
 import TopThree from '../components/TopThree';
 import Leaderboard from '../components/Leaderboard';
 import UserAccuracyBoard from '../components/UserAccuracyBoard';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 
 interface PlayProps {
   user: User;
@@ -113,13 +115,13 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
   const hasCompletedRankings = Object.keys(userRankings).length === 3;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">🍗 {event.name}</h1>
+              <h1 className="text-2xl font-bold">🍗 {event.name}</h1>
               <p className="text-sm text-gray-600">
                 Status: <span className="font-semibold capitalize">{event.status.toLowerCase()}</span>
               </p>
@@ -137,115 +139,140 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Game Content */}
-        {event.status === 'GUESSING' && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">
-              Guess the brand for each box
-              {userProgress && (
-                <span className="text-sm font-normal text-gray-600 ml-2">
-                  ({userProgress.guessesCompleted}/6 completed)
-                </span>
-              )}
-            </h2>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-              {[1, 2, 3, 4, 5, 6].map(num => (
-                <BoxCard
-                  key={num}
-                  number={num}
-                  guess={userGuesses[num]}
-                  distribution={results?.results.find(r => r.number === num)?.guessDist}
-                  onClick={() => setSelectedBox(num)}
-                  disabled={false}
-                />
-              ))}
-            </div>
+      <div className="flex justify-center min-h-[calc(100vh-80px)]">
+        <div className="w-full max-w-5xl px-4 py-8">
+          {/* Main Content */}
+          {event.status === 'GUESSING' && (
+            <Tabs defaultValue="rating" className="w-full">
+              <div className="text-center mb-8">
+                <h2 className="text-4xl font-semibold mb-2">🍗 Chikin Rater</h2>
+                <p className="text-lg text-gray-600 mb-6">Hey {user.username}! Click each box to taste and rate</p>
 
-            {hasCompletedGuesses && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center">
-                Great! You've completed all your guesses. Wait for the ranking phase to begin.
-              </div>
-            )}
-          </div>
-        )}
+                <div className="flex items-center justify-center gap-4">
+                  <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm">
+                    Completed: {userProgress?.guessesCompleted || 0}/6
+                  </span>
+                  <Button
+                    variant="outline"
+                    className="text-sm"
+                    onClick={() => (document.querySelector('[data-state="active"][data-value="results"]') ? null : null)}
+                  >
+                    View Live Results 📊
+                  </Button>
+                </div>
 
-        {event.status === 'RANKING' && (
-          <div>
-            {!hasCompletedGuesses ? (
-              <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
-                You must complete all guesses before ranking. The guessing phase has ended.
+                <div className="mt-4 flex justify-center">
+                  <TabsList className="grid w-full max-w-xs grid-cols-2">
+                    <TabsTrigger value="rating">Rating</TabsTrigger>
+                    <TabsTrigger value="results">Live Results</TabsTrigger>
+                  </TabsList>
+                </div>
               </div>
-            ) : !hasCompletedRankings ? (
-              <div>
-                <h2 className="text-xl font-semibold mb-4">
-                  Rank your top 3 boxes by taste
-                </h2>
-                <TopThree onSubmit={handleRankingSubmit} />
-              </div>
-            ) : (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center">
-                Rankings submitted! Wait for the results to be revealed.
-              </div>
-            )}
-          </div>
-        )}
 
-        {event.status === 'REVEALED' && (
-          <div className="space-y-8">
+              <TabsContent value="rating" className="space-y-8">
+                {/* Chicken Boxes Grid - 2/3 responsive centered to match mock */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                  {[1, 2, 3, 4, 5, 6].map(num => (
+                    <BoxCard
+                      key={num}
+                      number={num}
+                      guess={userGuesses[num]}
+                      distribution={results?.results.find(r => r.number === num)?.guessDist}
+                      onClick={() => setSelectedBox(num)}
+                      disabled={false}
+                    />
+                  ))}
+                </div>
+
+                {hasCompletedGuesses && (
+                  <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg max-w-2xl mx-auto text-center">
+                    Great! You've completed all your guesses. Wait for the ranking phase to begin.
+                  </div>
+                )}
+
+                <div className="text-sm text-gray-500 text-center max-w-2xl mx-auto">
+                  <p>💡 First guess the restaurant, then rank your top 3!</p>
+                  <p>Green = Complete | Yellow = Guessed only | Gray = Not started</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="results">
+                {results && (
+                  <Leaderboard results={results.results} revealed={event.status === 'REVEALED'} />
+                )}
+              </TabsContent>
+            </Tabs>
+          )}
+
+          {event.status === 'RANKING' && (
             <div>
-              <h2 className="text-xl font-semibold mb-4">Results Revealed!</h2>
-              
-              {/* Box Mappings */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                {results?.boxes.map(box => {
-                  const userGuess = userGuesses[box.number];
-                  const isCorrect = userGuess === box.revealedPlace;
-                  
-                  return (
-                    <div
-                      key={box.number}
-                      className={`p-4 rounded-lg border-2 ${
-                        isCorrect ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'
-                      }`}
-                    >
-                      <div className="text-2xl font-bold mb-2">Box #{box.number}</div>
-                      <div className="text-lg font-semibold">{box.revealedPlace}</div>
-                      <div className="text-sm mt-2">
-                        Your guess: <span className={isCorrect ? 'text-green-700' : 'text-red-700'}>
-                          {userGuess || 'None'}
-                        </span>
-                      </div>
-                      {box.correctGuesses !== undefined && (
-                        <div className="text-xs text-gray-600 mt-1">
-                          {box.correctGuesses} correct guesses
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+              {!hasCompletedGuesses ? (
+                <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg">
+                  You must complete all guesses before ranking. The guessing phase has ended.
+                </div>
+              ) : !hasCompletedRankings ? (
+                <div>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Rank your top 3 boxes by taste
+                  </h2>
+                  <TopThree onSubmit={handleRankingSubmit} />
+                </div>
+              ) : (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center">
+                  Rankings submitted! Wait for the results to be revealed.
+                </div>
+              )}
             </div>
+          )}
 
-            {/* User Accuracy Leaderboard */}
-            {results?.userAccuracy && (
-              <UserAccuracyBoard users={results.userAccuracy} currentUserId={user.id} />
-            )}
-          </div>
-        )}
+          {event.status === 'REVEALED' && (
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Results Revealed!</h2>
+                
+                {/* Box Mappings */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                  {results?.boxes.map(box => {
+                    const userGuess = userGuesses[box.number];
+                    const isCorrect = userGuess === box.revealedPlace;
+                    
+                    return (
+                      <div
+                        key={box.number}
+                        className={`p-4 rounded-lg border-2 ${
+                          isCorrect ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'
+                        }`}
+                      >
+                        <div className="text-2xl font-bold mb-2">Box #{box.number}</div>
+                        <div className="text-lg font-semibold">{box.revealedPlace}</div>
+                        <div className="text-sm mt-2">
+                          Your guess: <span className={isCorrect ? 'text-green-700' : 'text-red-700'}>
+                            {userGuess || 'None'}
+                          </span>
+                        </div>
+                        {box.correctGuesses !== undefined && (
+                          <div className="text-xs text-gray-600 mt-1">
+                            {box.correctGuesses} correct guesses
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-        {/* Live Leaderboard (always visible) */}
-        {results && (
-          <div className="mt-8">
-            <Leaderboard results={results.results} revealed={event.status === 'REVEALED'} />
-          </div>
-        )}
+              {/* User Accuracy Leaderboard */}
+              {results?.userAccuracy && (
+                <UserAccuracyBoard users={results.userAccuracy} currentUserId={user.id} />
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Guess Modal */}
+      {/* Chicken Modal */}
       {selectedBox !== null && (
-        <GuessModal
+        <ChickenModal
           boxNumber={selectedBox}
           places={places}
           currentGuess={userGuesses[selectedBox]}
