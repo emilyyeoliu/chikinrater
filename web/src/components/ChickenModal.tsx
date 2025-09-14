@@ -10,11 +10,13 @@ interface ChickenModalProps {
   currentGuess?: string;
   onGuess: (place: string) => void;
   onClose: () => void;
+  onRankSelect?: (boxNumber: number, rank: number) => void;
 }
 
-export default function ChickenModal({ boxNumber, places, currentGuess, onGuess, onClose }: ChickenModalProps) {
+export default function ChickenModal({ boxNumber, places, currentGuess, onGuess, onClose, onRankSelect }: ChickenModalProps) {
   const [guess, setGuess] = useState(currentGuess || '');
-  const [step, setStep] = useState<'guess' | 'rank'>(currentGuess ? 'rank' : 'guess');
+  const [step, setStep] = useState<'guess' | 'rank' | 'summary'>(currentGuess ? 'rank' : 'guess');
+  const [chosenRank, setChosenRank] = useState<number | null>(null);
 
   const handleGuessSubmit = () => {
     if (guess) {
@@ -24,9 +26,11 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
   };
 
   const handleRankSubmit = (selectedRank: number) => {
-    // For now, just close the modal after ranking
-    // In the future, this could be integrated with the ranking system
-    onClose();
+    setChosenRank(selectedRank);
+    if (onRankSelect) {
+      onRankSelect(boxNumber, selectedRank);
+    }
+    setStep('summary');
   };
 
   const handleSkipRanking = () => {
@@ -73,7 +77,7 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
                 Submit Guess & Continue to Ranking
               </Button>
             </div>
-          ) : (
+          ) : step === 'rank' ? (
             <div className="space-y-4">
               <div className="text-center">
                 <Badge variant="outline" className="mb-4">
@@ -85,24 +89,24 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
               <div className="grid grid-cols-3 gap-3">
                 <Button
                   variant="outline"
-                  className="aspect-square text-lg"
+                  className="h-16 w-16 rounded-full text-sm font-semibold"
                   onClick={() => handleRankSubmit(1)}
                 >
-                  🥇<br/>1st Place
+                  1st
                 </Button>
                 <Button
                   variant="outline"
-                  className="aspect-square text-lg"
+                  className="h-16 w-16 rounded-full text-sm font-semibold"
                   onClick={() => handleRankSubmit(2)}
                 >
-                  🥈<br/>2nd Place
+                  2nd
                 </Button>
                 <Button
                   variant="outline"
-                  className="aspect-square text-lg"
+                  className="h-16 w-16 rounded-full text-sm font-semibold"
                   onClick={() => handleRankSubmit(3)}
                 >
-                  🥉<br/>3rd Place
+                  3rd
                 </Button>
               </div>
               
@@ -115,6 +119,19 @@ export default function ChickenModal({ boxNumber, places, currentGuess, onGuess,
                   Skip ranking for now
                 </Button>
               </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <h4 className="text-lg font-semibold">Summary</h4>
+                <p className="text-sm">Box {boxNumber}</p>
+                <p className="text-sm">Guess: <span className="font-medium">{guess}</span></p>
+                {chosenRank && (
+                  <p className="text-sm">Ranking: <span className="font-medium">{chosenRank === 1 ? '1st' : chosenRank === 2 ? '2nd' : '3rd'}</span></p>
+                )}
+              </div>
+
+              <Button className="w-full" onClick={onClose}>Done</Button>
             </div>
           )}
         </CardContent>

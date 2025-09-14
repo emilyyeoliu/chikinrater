@@ -1,5 +1,4 @@
 import type { GuessDistribution } from '../api';
-import { Badge } from '@/components/ui/badge';
 
 interface BoxCardProps {
   number: number;
@@ -7,9 +6,10 @@ interface BoxCardProps {
   distribution?: GuessDistribution;
   onClick: () => void;
   disabled: boolean;
+  rankIcon?: 1 | 2 | 3;
 }
 
-export default function BoxCard({ number, guess, distribution, onClick, disabled }: BoxCardProps) {
+export default function BoxCard({ number, guess, distribution, onClick, disabled, rankIcon }: BoxCardProps) {
   const totalGuesses = distribution ? Object.values(distribution).reduce((a, b) => a + b, 0) : 0;
   
   const getBoxStatus = () => {
@@ -44,32 +44,22 @@ export default function BoxCard({ number, guess, distribution, onClick, disabled
             {guess}
           </div>
         )}
-        
-        <div className="text-sm text-gray-500">
-          👆 Click to rate
-        </div>
       </button>
       
-      {/* Status indicator */}
-      <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusColor(status)} border border-white`} />
-      
-      {/* Distribution info */}
-      {distribution && totalGuesses > 0 && (
-        <div className="mt-2 space-y-1">
-          <div className="text-xs text-gray-500 font-medium text-center">
-            Guesses ({totalGuesses})
-          </div>
-          {Object.entries(distribution)
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 2)
-            .map(([place, count]) => (
-              <div key={place} className="flex justify-between text-xs">
-                <span className="text-gray-500 truncate mr-2">{place}</span>
-                <span className="text-gray-500">{count}</span>
-              </div>
-            ))}
+      {/* Rank badge (top-right) */}
+      {rankIcon ? (
+        <div
+          className={`absolute -top-2 -right-2 h-7 w-7 rounded-full text-[10px] font-bold flex items-center justify-center shadow
+            ${rankIcon === 1 ? 'bg-yellow-400 text-black' : rankIcon === 2 ? 'bg-gray-300 text-black' : 'bg-amber-700 text-white'}`}
+          title={rankIcon === 1 ? '1st' : rankIcon === 2 ? '2nd' : '3rd'}
+        >
+          {rankIcon === 1 ? '1st' : rankIcon === 2 ? '2nd' : '3rd'}
         </div>
+      ) : (
+        <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${getStatusColor(status)} border border-white`} />
       )}
+      
+      {/* Distribution info removed per UI spec */}
     </div>
   );
 }

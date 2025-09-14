@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { User, Event, ResultsPayload } from '../api';
 import { gameAPI, authAPI } from '../api';
@@ -102,6 +102,32 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
     navigate('/join');
   };
 
+  const userProgress = results?.userProgress.find(p => p.userId === user.id);
+  const hasCompletedGuesses = Object.keys(userGuesses).length === 6;
+  const hasCompletedRankings = Object.keys(userRankings).length === 3;
+
+  // Optimistic overlay so the Taste Leaderboard reflects local selections immediately
+  const displayResults = useMemo(() => {
+    if (!results) return null;
+    const cloned = results.results.map(r => ({
+      ...r,
+      rankCounts: { ...r.rankCounts },
+      points: r.points,
+    }));
+    const byNumber = new Map(cloned.map(r => [r.number, r]));
+    Object.entries(userRankings).forEach(([numStr, rank]) => {
+      const num = Number(numStr);
+      const r = byNumber.get(num);
+      if (!r) return;
+      // Increment local counts/points (3/2/1)
+      r.rankCounts[rank] = (r.rankCounts[rank] || 0) + 1;
+      r.points += rank === 1 ? 3 : rank === 2 ? 2 : 1;
+    });
+    // Sort by points desc for display
+    cloned.sort((a, b) => b.points - a.points);
+    return cloned;
+  }, [results, userRankings]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -109,10 +135,6 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
       </div>
     );
   }
-
-  const userProgress = results?.userProgress.find(p => p.userId === user.id);
-  const hasCompletedGuesses = Object.keys(userGuesses).length === 6;
-  const hasCompletedRankings = Object.keys(userRankings).length === 3;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -148,17 +170,10 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                 <h2 className="text-4xl font-semibold mb-2">🍗 Chikin Rater</h2>
                 <p className="text-lg text-gray-600 mb-6">Hey {user.username}! Click each box to taste and rate</p>
 
-                <div className="flex items-center justify-center gap-4">
+                <div className="flex items-center justify-center">
                   <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm">
                     Completed: {userProgress?.guessesCompleted || 0}/6
                   </span>
-                  <Button
-                    variant="outline"
-                    className="text-sm"
-                    onClick={() => (document.querySelector('[data-state="active"][data-value="results"]') ? null : null)}
-                  >
-                    View Live Results 📊
-                  </Button>
                 </div>
 
                 <div className="mt-4 flex justify-center">
@@ -180,6 +195,7 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                       distribution={results?.results.find(r => r.number === num)?.guessDist}
                       onClick={() => setSelectedBox(num)}
                       disabled={false}
+                      rankIcon={userRankings[num] as 1 | 2 | 3 | undefined}
                     />
                   ))}
                 </div>
@@ -197,8 +213,8 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
               </TabsContent>
 
               <TabsContent value="results">
-                {results && (
-                  <Leaderboard results={results.results} revealed={event.status === 'REVEALED'} />
+                {results && displayResults && (
+                  <Leaderboard results={displayResults} revealed={event.status === 'REVEALED'} />
                 )}
               </TabsContent>
             </Tabs>
@@ -277,6 +293,7 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
           places={places}
           currentGuess={userGuesses[selectedBox]}
           onGuess={handleGuess}
+          onRankSelect={(boxNumber, rank) => setUserRankings(prev => ({ ...prev, [boxNumber]: rank }))}
           onClose={() => setSelectedBox(null)}
         />
       )}
