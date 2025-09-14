@@ -6,10 +6,13 @@ import { emitResults, room } from '../index';
 
 const router = Router();
 
-// Admin authentication middleware
+// Admin authentication middleware (party mode)
+// Simplified to a single hardcoded password for local/party usage
 function requireAdmin(req: any, res: any, next: any) {
   const adminSecret = req.header('x-admin-secret');
-  if (!adminSecret || adminSecret !== process.env.ADMIN_SECRET) {
+  const envSecret = process.env.ADMIN_SECRET;
+  const ok = adminSecret === 'chikin123' || (envSecret && adminSecret === envSecret);
+  if (!ok) {
     return res.status(403).json({ error: 'Forbidden' });
   }
   next();
@@ -114,7 +117,13 @@ router.post('/status', async (req, res) => {
 // Set box mappings
 router.post('/map', async (req, res) => {
   try {
-    const { code, mappings } = AdminMapSchema.parse(req.body);
+    // Be forgiving here to avoid zod runtime issues; validate manually
+    const body = req.body ?? {};
+    const code: string | undefined = body.code;
+    const mappings: Record<string, string> | undefined = body.mappings;
+    if (!code || !mappings || typeof mappings !== 'object') {
+      return res.status(400).json({ error: 'Invalid payload. Expected { code, mappings }' });
+    }
     
     const event = await prisma.event.findUnique({ where: { code } });
     if (!event) {

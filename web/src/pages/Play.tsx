@@ -26,6 +26,9 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
   const [selectedBox, setSelectedBox] = useState<number | null>(null);
   const [places, setPlaces] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [revealed, setRevealed] = useState(false);
+  const [answers, setAnswers] = useState<Record<number, string | null>>({});
+  const [shaking, setShaking] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -129,6 +132,21 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
     return cloned;
   }, [results, userRankings]);
 
+  // Enforce unique ranks: when a rank is assigned to a new box, remove it from any other
+  const setRankForBox = (boxNumber: number, rank: number) => {
+    setUserRankings(prev => {
+      const next: Record<number, number> = { ...prev };
+      // Remove this rank from any previously assigned box
+      Object.entries(next).forEach(([numStr, r]) => {
+        if (r === rank && Number(numStr) !== boxNumber) {
+          delete next[Number(numStr)];
+        }
+      });
+      next[boxNumber] = rank;
+      return next;
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-golden-50 to-chicken-50 flex items-center justify-center">
@@ -183,6 +201,37 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                   <span className="px-4 py-2 rounded-full bg-gradient-to-r from-golden-200 to-chicken-200 text-crust-800 text-sm font-semibold shadow-sm">
                     Completed: {userProgress?.guessesCompleted || 0}/6 🏆
                   </span>
+                  {hasCompletedGuesses && !revealed && (
+                    <Button
+                      variant="outline"
+                      onClick={async () => {
+                        try {
+                          const data = await gameAPI.getAnswers();
+                          // If answers exist, flip reveal UI; server still controls sockets
+                          if (data.answers?.length) {
+                            const map: Record<number, string | null> = {};
+                            data.answers.forEach(a => { map[a.number] = a.place; });
+                            setAnswers(map);
+                            setShaking(true);
+                            setTimeout(() => {
+                              setShaking(false);
+                              setRevealed(true);
+                            }, 1000);
+                          }
+                        } catch (e) {
+                          console.error('Failed to get answers', e);
+                          // still show local reveal for party mode
+                          setShaking(true);
+                          setTimeout(() => {
+                            setShaking(false);
+                            setRevealed(true);
+                          }, 1000);
+                        }
+                      }}
+                    >
+                      Reveal Answers 🐔
+                    </Button>
+                  )}
                 </div>
 
                 <div className="mt-4 flex justify-center">
@@ -205,6 +254,13 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                       onClick={() => setSelectedBox(num)}
                       disabled={false}
                       rankIcon={userRankings[num] as 1 | 2 | 3 | undefined}
+                      revealed={revealed || event.status === 'REVEALED'}
+                      revealedAnswer={
+                        (revealed && (answers[num] ?? undefined)) ||
+                        results?.boxes.find(b => b.number === num)?.revealedPlace ||
+                        undefined
+                      }
+                      shaking={shaking && !revealed}
                     />
                   ))}
                 </div>
@@ -303,7 +359,7 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
           places={places}
           currentGuess={userGuesses[selectedBox]}
           onGuess={handleGuess}
-          onRankSelect={(boxNumber, rank) => setUserRankings(prev => ({ ...prev, [boxNumber]: rank }))}
+          onRankSelect={(boxNumber, rank) => setRankForBox(boxNumber, rank)}
           onClose={() => setSelectedBox(null)}
         />
       )}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { adminAPI } from '../api';
+import { adminAPI, gameAPI } from '../api';
 import type { Event } from '../api';
 import { LogoIcon } from '../components/Logo';
 
@@ -9,6 +9,7 @@ export default function Admin() {
   const [events, setEvents] = useState<any[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   
   // Form states
   const [newEventCode, setNewEventCode] = useState('');
@@ -22,14 +23,7 @@ export default function Admin() {
     '6': '',
   });
 
-  const places = [
-    'Popeyes',
-    'Jollibee',
-    'The Bird',
-    'Proposition Chicken',
-    'KFC',
-    'Starbird'
-  ];
+  const [places, setPlaces] = useState<string[]>([]);
 
   useEffect(() => {
     // Check if admin secret is stored
@@ -39,24 +33,40 @@ export default function Admin() {
       adminAPI.setHeaders(storedSecret);
       setIsAuthenticated(true);
       loadEvents();
+      // Load canonical places from API to guarantee exact names
+      gameAPI.getPlaces()
+        .then((d) => setPlaces(d.places))
+        .catch(() => setPlaces(['Popeyes','Jollibee','The Bird','Proposition Chicken','KFC','Starbird']));
     }
   }, []);
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('adminSecret', adminSecret);
-    adminAPI.setHeaders(adminSecret);
+    const pwd = adminSecret.trim();
+    if (pwd !== 'chikin123') {
+      alert('Invalid password');
+      return;
+    }
+    localStorage.setItem('adminSecret', pwd);
+    adminAPI.setHeaders(pwd);
     setIsAuthenticated(true);
     loadEvents();
+    // Load places after auth
+    gameAPI.getPlaces()
+      .then((d) => setPlaces(d.places))
+      .catch(() => setPlaces(['Popeyes','Jollibee','The Bird','Proposition Chicken','KFC','Starbird']));
   };
 
   const loadEvents = async () => {
     try {
       const data = await adminAPI.getEvents();
       setEvents(data.events);
+      setErrorMessage('');
     } catch (error) {
       console.error('Failed to load events:', error);
-      alert('Invalid admin secret');
+      const msg = (error as any)?.response?.data?.error || 'Invalid admin password or server error';
+      setErrorMessage(msg);
+      alert(msg);
       handleLogout();
     }
   };
@@ -123,14 +133,25 @@ export default function Admin() {
       alert('Please set all box mappings');
       return;
     }
+    // Validate mapping values against canonical places (defensive)
+    const invalid = Object.values(mappings).find((p) => !places.includes(p));
+    if (invalid) {
+      const msg = `Invalid place selected: ${invalid}. Please choose from: ${places.join(', ')}`;
+      setErrorMessage(msg);
+      alert(msg);
+      return;
+    }
     
     try {
       setLoading(true);
       await adminAPI.setMapping(selectedEvent.code, mappings);
       alert('Mappings saved successfully!');
+      setErrorMessage('');
     } catch (error) {
       console.error('Failed to save mappings:', error);
-      alert('Failed to save mappings');
+      const msg = (error as any)?.response?.data?.error || 'Failed to save mappings';
+      setErrorMessage(msg);
+      alert(msg);
     } finally {
       setLoading(false);
     }
@@ -152,12 +173,15 @@ export default function Admin() {
             <LogoIcon size="lg" className="mr-3" />
             <h1 className="text-2xl font-bold text-crust-900">Admin Panel</h1>
           </div>
+          {errorMessage && (
+            <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm">{errorMessage}</div>
+          )}
           <form onSubmit={handleAuth}>
             <input
               type="password"
               value={adminSecret}
               onChange={(e) => setAdminSecret(e.target.value)}
-              placeholder="Enter admin secret"
+              placeholder="Enter admin password (chikin123)"
               className="w-full px-4 py-2 border-2 border-golden-300 focus:border-chicken-500 focus:ring-chicken-500 rounded-lg mb-4 bg-white/80"
               required
             />
@@ -268,6 +292,9 @@ export default function Admin() {
             <h2 className="text-xl font-bold mb-4 text-crust-900">
               Manage Event: {selectedEvent.name} ({selectedEvent.code})
             </h2>
+            {errorMessage && (
+              <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm">{errorMessage}</div>
+            )}
 
             {/* Status Control */}
             <div className="mb-6">

@@ -242,4 +242,25 @@ router.get('/places', async (req, res) => {
   }
 });
 
+// Player-triggered answers (party mode): return mappings regardless of status
+router.get('/answers', async (req, res) => {
+  try {
+    const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    const boxes = await prisma.box.findMany({
+      where: { eventId: user.eventId },
+      include: { place: true },
+      orderBy: { number: 'asc' }
+    });
+    res.json({
+      answers: boxes.map(b => ({ number: b.number, place: b.place?.name || null }))
+    });
+  } catch (error) {
+    console.error('Get answers error:', error);
+    res.status(500).json({ error: 'Failed to get answers' });
+  }
+});
+
 export default router;

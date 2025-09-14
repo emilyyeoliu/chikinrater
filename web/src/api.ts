@@ -106,6 +106,10 @@ export const gameAPI = {
     const { data } = await api.get('/api/places');
     return data as { places: string[] };
   },
+  getAnswers: async () => {
+    const { data } = await api.get('/api/answers');
+    return data as { answers: Array<{ number: number; place: string | null }> };
+  },
 };
 
 // Admin API
