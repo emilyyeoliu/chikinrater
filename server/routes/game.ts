@@ -229,13 +229,25 @@ router.get('/rankings', async (req, res) => {
 // Get available places
 router.get('/places', async (req, res) => {
   try {
-    const places = await prisma.place.findMany({
-      orderBy: { name: 'asc' }
-    });
-    
-    res.json({ 
-      places: places.map(p => p.name) 
-    });
+    let places = await prisma.place.findMany({ orderBy: { name: 'asc' } });
+    if (places.length === 0) {
+      const defaultPlaces = [
+        'Popeyes',
+        'Jollibee',
+        'The Bird',
+        'Proposition Chicken',
+        'KFC',
+        'Starbird',
+      ];
+      // Seed defaults if none exist (idempotent via upsert)
+      await prisma.$transaction(
+        defaultPlaces.map((name) =>
+          prisma.place.upsert({ where: { name }, update: {}, create: { name } })
+        )
+      );
+      places = await prisma.place.findMany({ orderBy: { name: 'asc' } });
+    }
+    res.json({ places: places.map((p) => p.name) });
   } catch (error) {
     console.error('Get places error:', error);
     res.status(500).json({ error: 'Failed to get places' });
