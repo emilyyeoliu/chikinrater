@@ -23,7 +23,8 @@ export const AdminStatusSchema = z.object({
 
 export const AdminMapSchema = z.object({
   code: z.string(),
-  mappings: z.record(z.string()),
+  // Use explicit key and value schemas for compatibility across zod versions
+  mappings: z.record(z.string(), z.string()),
 });
 
 export const AdminSeedSchema = z.object({

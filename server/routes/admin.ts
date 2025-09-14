@@ -132,7 +132,7 @@ router.post('/map', async (req, res) => {
     
     // Get all places
     const places = await prisma.place.findMany();
-    const placeByName = new Map(places.map(p => [p.name, p.id]));
+    const placeByName = new Map<string, string>(places.map(p => [p.name, p.id]));
     
     // Update boxes in a transaction
     await prisma.$transaction(async (tx) => {
