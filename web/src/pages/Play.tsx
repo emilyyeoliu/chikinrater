@@ -183,19 +183,12 @@ export default function Play({ user, event: initialEvent }: PlayProps) {
                   <span className="px-4 py-2 rounded-full bg-gradient-to-r from-golden-200 to-chicken-200 text-crust-800 text-sm font-semibold shadow-sm">
                     Completed: {userProgress?.guessesCompleted || 0}/6 🏆
                   </span>
-                  <Button
-                    variant="outline"
-                    className="text-sm border-chicken-400 text-chicken-700 hover:bg-chicken-50 hover:border-chicken-500 font-medium"
-                    onClick={() => (document.querySelector('[data-state="active"][data-value="results"]') ? null : null)}
-                  >
-                    View Live Results 📊
-                  </Button>
                 </div>
 
                 <div className="mt-4 flex justify-center">
                   <TabsList className="grid w-full max-w-xs grid-cols-2 bg-white/80 border border-golden-300">
-                    <TabsTrigger value="rating" className="data-[state=active]:bg-chicken-500 data-[state=active]:text-white">Rating</TabsTrigger>
-                    <TabsTrigger value="results" className="data-[state=active]:bg-chicken-500 data-[state=active]:text-white">Live Results</TabsTrigger>
+                    <TabsTrigger value="rating" className="data-[state=active]:bg-chicken-500 data-[state=active]:text-red-600">Rating</TabsTrigger>
+                    <TabsTrigger value="results" className="data-[state=active]:bg-chicken-500 data-[state=active]:text-red-600">Live Results</TabsTrigger>
                   </TabsList>
                 </div>
               </div>
