@@ -1,0 +1,81 @@
+// prisma/schema.prisma
+datasource db { 
+  provider = "postgresql"
+  url = env("DATABASE_URL") 
+}
+
+generator client { 
+  provider = "prisma-client-js" 
+}
+
+enum EventStatus { 
+  GUESSING 
+  RANKING 
+  REVEALED 
+  CLOSED 
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique      // short join code like "WINGS"
+  status    EventStatus @default(GUESSING)
+  createdAt DateTime @default(now())
+  boxes     Box[]
+  users     User[]
+}
+
+model Place {
+  id    String @id @default(cuid())
+  name  String @unique // "Popeyes", "Jollibee", ...
+  boxes Box[]          // reverse relation
+  guesses Guess[]
+}
+
+model Box {
+  id        String @id @default(cuid())
+  eventId   String
+  event     Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  number    Int               // 1..6
+  placeId   String?           // set by admin; kept server-side hidden until REVEALED
+  place     Place?  @relation(fields: [placeId], references: [id])
+  guesses   Guess[]
+  rankings  RankingEntry[]
+
+  @@unique([eventId, number])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  username  String
+  token     String   @unique   // random uuid stored in HttpOnly cookie
+  createdAt DateTime @default(now())
+  guesses   Guess[]
+  rankings  RankingEntry[]
+  @@unique([eventId, username]) // prevent duplicates in same event
+}
+
+model Guess {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  boxId     String
+  box       Box    @relation(fields: [boxId], references: [id], onDelete: Cascade)
+  placeId   String // the guessed place
+  place     Place  @relation(fields: [placeId], references: [id])
+  createdAt DateTime @default(now())
+  @@unique([userId, boxId])    // one guess per box
+}
+
+model RankingEntry {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rank      Int    // 1,2,3
+  boxId     String
+  box       Box    @relation(fields: [boxId], references: [id])
+  createdAt DateTime @default(now())
+  @@unique([userId, rank])     // one box per rank
+}
